@@ -9,14 +9,23 @@ const harperGetMessages = require('./services/harper-get-messages');
 const harperGetBannedUsers = require('./services/harper-get-banned_users');
 const leaveRoom = require('./utils/leave-room'); // Add this
 
-app.use(cors()); // Add cors middleware
-
+// app.use(cors()); // Add cors middleware
+// Enable CORS for all routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://swe-590-p4sg6l25pa-uc.a.run.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+app.get('/', (req, res) => {
+  res.send('Hello, this is the root endpoint!');
+});
 const server = http.createServer(app); // Add this
 
 // Create an io server and allow for CORS from http://localhost:3000 with GET and POST methods
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'https://swe-590-p4sg6l25pa-uc.a.run.app',
     methods: ['GET', 'POST'],
   },
 });
@@ -106,7 +115,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected from the chat');
     const user = allUsers.find((user) => user.id == socket.id);
-    if (user?.username) {
+    if (user && user.username) {
       allUsers = leaveRoom(socket.id, allUsers);
       socket.to(chatRoom).emit('chatroom_users', allUsers);
       socket.to(chatRoom).emit('receive_message', {
@@ -116,4 +125,6 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(4000, () => 'Server is running on port 4000');
+server.listen(process.env.PORT || 3000, () => {
+  console.log(`Server is running on port ${process.env.PORT || 3000}`);
+});

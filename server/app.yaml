@@ -1,0 +1,13 @@
+runtime: nodejs
+env: flex
+
+service: default
+
+env_variables:
+  HARPERDB_URL : "https://swe390-cloud-altanborali.harperdbcloud.com"
+  HARPERDB_PW : "Basic YWx0YW5ib3JhbGk6QWI0ODMyMDgh"
+
+handlers:
+  - url: /.*
+    script: auto
+    secure: always
